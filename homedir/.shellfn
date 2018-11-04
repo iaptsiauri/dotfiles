@@ -1,0 +1,149 @@
+#########################################
+# Utility Functions
+
+# Create a new git repo with one README commit and CD into it
+function gitnr() { mkdir $1; cd $1; git init; touch README.md; git add README.md; git commit -mFirst-commit;}
+
+# git clone and cd to a repo directory
+function clone() {
+  git clone --depth=1 $@
+  if [ "$2" ]; then
+    cd "$2"
+  else
+    cd $(basename "$1" .git)
+  fi
+}
+
+# Show normally hidden system and dotfile types of files
+# in Mac OS Finder
+function showhiddenfiles() {
+  defaults write com.apple.Finder AppleShowAllFiles YES
+  osascript -e 'tell application "Finder" to quit'
+  sleep 0.25
+  osascript -e 'tell application "Finder" to activate'
+}
+
+# Hide (back to defaults) normally hidden system and dotfile types of files
+# in Mac OS Finder
+function hidehiddenfiles() {
+  defaults write com.apple.Finder AppleShowAllFiles NO
+  osascript -e 'tell application "Finder" to quit'
+  sleep 0.25
+  osascript -e 'tell application "Finder" to activate'
+}
+
+## hammer a service with curl for a given number of times
+## usage: curlhammer $url
+function curlhammer () {
+  echo "about to hammer $1 with $2 curls ⇒";
+  echo "curl -k -s -D - $1 -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'"
+  for i in {1..$2}
+  do
+    curl -k -s -D - $1 -o /dev/null | grep 'HTTP/1.1' | sed 's/HTTP\/1.1 //'
+  done
+  echo "done"
+}
+
+## curlheader will return only a specific response header or all response headers for a given URL
+## usage: curlheader $header $url
+## usage: curlheader $url
+function curlheader() {
+  if [[ -z "$2" ]]; then
+    echo "curl -k -s -D - $1 -o /dev/null"
+    curl -k -s -D - $1 -o /dev/null:
+  else
+    echo "curl -k -s -D - $2 -o /dev/null | grep $1:"
+    curl -k -s -D - $2 -o /dev/null | grep $1:
+  fi
+}
+
+## get the timings for a curl to a URL
+## usage: curltime $url
+function curltime(){
+  curl -w "   time_namelookup:  %{time_namelookup}\n\
+      time_connect:  %{time_connect}\n\
+   time_appconnect:  %{time_appconnect}\n\
+  time_pretransfer:  %{time_pretransfer}\n\
+     time_redirect:  %{time_redirect}\n\
+time_starttransfer:  %{time_starttransfer}\n\
+--------------------------\n\
+        time_total:  %{time_total}\n" -o /dev/null -s "$1"
+}
+
+# Create a new directory and enter it
+function mkd() {
+  mkdir -p "$@" && cd "$_";
+}
+
+## output directory/file tree, excluding ignorables
+function tre(){
+  tree -aC -I '.git|node_modules|bower_components|.DS_Store' --dirsfirst "$@"
+}
+
+## weather
+function weather() {
+  curl wttr.in/$1
+}
+
+## Node docs
+function node-docs {
+  local section=${1:-all}
+  open_command "https://nodejs.org/docs/$(node --version)/api/$section.html"
+}
+
+function uuid() {
+  local UUID=$(uuidgen | tr '[:upper:]' '[:lower:]')
+  echo $UUID | tr -d '\n' | pbcopy
+  echo $UUID
+}
+
+function killonport() {
+  lsof -ti tcp:"$@" -sTCP:LISTEN | xargs kill
+}
+
+# Determine size of a file or total size of a directory
+function fsize() {
+  if du -b /dev/null > /dev/null 2>&1; then
+    local arg=-sbh;
+  else
+    local arg=-sh;
+  fi
+  if [[ -n "$@" ]]; then
+    du $arg -- "$@";
+  else
+    du $arg .[^.]* ./*;
+  fi;
+}
+
+# Start docker Postgres Container
+# rm: Automatically remove the container and it’s associated file system upon exit. 
+# name: An identifying name for the container. 
+# e: Expose environment variable of name POSTGRES_PASSWORD with value docker to the container. 
+# d: Launches the container in detached mode.
+# p: Bind port 5432 on localhost to port 5432 within the container.
+# v: Mount $HOME/docker/volumes/postgres on the host machine to the container side volume path /var/lib/postgresql/data created inside the container. This ensures that postgres data persists even after the container is removed.
+function startpg() {
+  if [ ! -d $HOME/docker/volumes/postgres ]; then
+    echo "creating directory to persist container data on local machine"
+    echo "mkdir $HOME/docker/volumes/postgres"
+    mkdir -p $HOME/docker/volumes/postgres
+  fi
+  docker run --rm --name pg-docker -e POSTGRES_PASSWORD=docker -d -p 5432:5432 -v $HOME/docker/volumes/postgres:/var/lib/postgresql/data postgres:9.5
+}
+
+# Start rabbitmq 3 Container
+# rm: Automatically remove the container and it’s associated file system upon exit. 
+# name: An identifying name for the container. 
+# hostname: An identifying name for the container. 
+# d: Launches the container in detached mode.
+# v: Mount $HOME/docker/volumes/rabbit on the host machine to the container side volume path /var/lib/rabbitmq created inside the container. This ensures that postgres data persists even after the container is removed.
+# p: Bind port 8088 on localhost to port 15672 within the container for management container.
+# p: Bind port 5672 on localhost to port 5672 AMQP comunication.
+function startrabbit() {
+  if [ ! -d $HOME/docker/volumes/rabbitmq ]; then
+    echo "creating directory to persist container data on local machine"
+    echo "mkdir $HOME/docker/volumes/rabbitmq"
+    mkdir -p $HOME/docker/volumes/rabbitmq
+  fi
+  docker run --rm --name rabbit-docker --hostname dev-rabbit -d -v $HOME/docker/volumes/rabbitmq:/var/lib/rabbitmq -p 5672:5672 -p 8088:15672 rabbitmq:3-management
+}

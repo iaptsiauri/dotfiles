@@ -1,0 +1,9 @@
+[submodule "FiraCode"]
+	path = FiraCode
+	url = https://github.com/tonsky/FiraCode
+[submodule "oh-my-zsh"]
+	path = oh-my-zsh
+	url = https://github.com/robbyrussell/oh-my-zsh
+[submodule "nvm"]
+	path = nvm
+	url = https://github.com/creationix/nvm
