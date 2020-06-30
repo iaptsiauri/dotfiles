@@ -29,7 +29,7 @@ sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -int 1;ok
 #sudo defaults write /Library/Preferences/com.apple.alf loggingenabled -int 1
 
 # Do not automatically allow signed software to receive incoming connections
-#sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
+sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
 
 # Log firewall events for 90 days
 #sudo perl -p -i -e 's/rotate=seq compress file_max=5M all_max=50M/rotate=utc compress file_max=5M ttl=90/g' "/etc/asl.conf"
@@ -91,7 +91,8 @@ sudo defaults write /Library/Preferences/com.apple.loginwindow GuestEnabled -boo
 #sudo pmset destroyfvkeyonstandby 1
 
 # Disable Bonjour multicast advertisements
-#sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMulticastAdvertisements -bool true
+running "Disable Bonjour multicast advertisements"
+sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMulticastAdvertisements -bool true
 
 # Disable the crash reporter
 #defaults write com.apple.CrashReporter DialogType -string "none"
@@ -382,31 +383,6 @@ defaults write com.apple.dock wvous-tr-modifier -int 0;ok
 running "Bottom right screen corner → Start screen saver"
 defaults write com.apple.dock wvous-br-corner -int 5
 defaults write com.apple.dock wvous-br-modifier -int 0;ok
-
-###############################################################################
-bot "Configuring Mail"
-###############################################################################
-
-running "Disable send and reply animations in Mail.app"
-defaults write com.apple.mail DisableReplyAnimations -bool true
-defaults write com.apple.mail DisableSendAnimations -bool true;ok
-
-running "Copy email addresses as 'foo@example.com' instead of 'Foo Bar <foo@example.com>' in Mail.app"
-defaults write com.apple.mail AddressesIncludeNameOnPasteboard -bool false;ok
-
-running "Add the keyboard shortcut ⌘ + Enter to send an email in Mail.app"
-defaults write com.apple.mail NSUserKeyEquivalents -dict-add "Send" -string "@\\U21a9";ok
-
-running "Display emails in threaded mode, sorted by date (oldest at the top)"
-defaults write com.apple.mail DraftsViewerAttributes -dict-add "DisplayInThreadedMode" -string "yes"
-defaults write com.apple.mail DraftsViewerAttributes -dict-add "SortedDescending" -string "yes"
-defaults write com.apple.mail DraftsViewerAttributes -dict-add "SortOrder" -string "received-date";ok
-
-running "Disable inline attachments (just show the icons)"
-defaults write com.apple.mail DisableInlineAttachmentViewing -bool true;ok
-
-running "Disable automatic spell checking"
-defaults write com.apple.mail SpellCheckingBehavior -string "NoSpellCheckingEnabled";ok
 
 ###############################################################################
 bot "Terminal & iTerm2"

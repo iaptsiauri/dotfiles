@@ -28,9 +28,6 @@ source ./oh-my-zsh/tools/install.sh
 bot "Copying custom Oh My Zsh themes..."
 cp ./zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes
 
-bot "Installing RVM..."
-curl -sSL https://get.rvm.io | bash -s stable
-
 bot "Installing NVM..."
 source ./nvm/install.sh
 
@@ -109,6 +106,3 @@ source ./install/brew_cask.sh
 
 bot "installing packages with npm..."
 source ./install/npm.sh
-
-bot "installing packages with rvm..."
-source ./install/rvm.sh

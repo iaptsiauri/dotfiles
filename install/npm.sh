@@ -35,6 +35,7 @@ packages=(
     eslint
     vtop
     nodemon
+    pure-prompt
 )
 
 sudo npm install -g "${packages[@]}"

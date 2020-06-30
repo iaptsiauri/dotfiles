@@ -7,10 +7,9 @@ apps=(
     docker
     iterm2
     visual-studio-code
-    firefox
+    opera
     google-chrome
     spotify
-    skype
     slack
     shiftit
     the-unarchiver
