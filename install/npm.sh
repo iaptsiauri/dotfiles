@@ -24,4 +24,4 @@ packages=(
     pure-prompt
 )
 
-sudo npm install -g "${packages[@]}"
+npm install -g "${packages[@]}"
