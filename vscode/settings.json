@@ -4,9 +4,10 @@
     "editor.fontSize": 14,
     "explorer.openEditors.visible": 0,
     "editor.minimap.enabled": false,
-    "workbench.colorTheme": "Tomorrow Night Blue",
+    "workbench.colorTheme": "Snazzy",
     "files.trimTrailingWhitespace": true,
     "explorer.confirmDelete": false,
     "files.insertFinalNewline": true,
-    "terminal.integrated.fontSize": 14
+    "terminal.integrated.fontSize": 14,
+    "editor.fontLigatures": true
 }

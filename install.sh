@@ -16,20 +16,11 @@ if ! sudo grep -q "%wheel		ALL=(ALL) NOPASSWD: ALL #atomantic/dotfiles" "/etc/su
   while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 fi
 
-bot "Adding some nice fonts..."
-cp ./FiraCode/distr/ttf/*.ttf /Library/Fonts
-
 bot "Configuring MacOS system settings..."
 source ./system/macos.sh
 
-bot "Installing Oh My Zsh to make us 10x developer..."
-source ./oh-my-zsh/tools/install.sh
-
-bot "Copying custom Oh My Zsh themes..."
-cp ./zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes
-
-bot "Installing NVM..."
-source ./nvm/install.sh
+bot "Adding some nice fonts..."
+cp ./FiraCode/distr/ttf/*.ttf /Library/Fonts
 
 # /etc/hosts
 read -r -p "Overwrite /etc/hosts with the ad-blocking hosts file from someonewhocares.org? (from ./configs/hosts file) [y|N] " response
@@ -98,11 +89,35 @@ done
 
 popd > /dev/null 2>&1
 
+#####
+# install Node
+#####
+
+bot "Installing NVM..."
+source ./nvm/install.sh
+
+bot "Installing a lts version of Node..."
+
+# Install the latest stable version of node
+nvm install --lts
+
+# Switch to the installed version
+nvm use node
+
+# Use the stable version of node by default
+nvm alias default node
+
+bot "installing packages with npm..."
+source ./install/npm.sh
+
 bot "installing packages with brew..."
 source ./install/brew.sh
 
 bot "installing packages with brew cask..."
 source ./install/brew_cask.sh
 
-bot "installing packages with npm..."
-source ./install/npm.sh
+bot "Installing Oh My Zsh to make us 10x developer..."
+source ./oh-my-zsh/tools/install.sh
+
+# bot "Copying custom Oh My Zsh themes..."
+# cp ./zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes

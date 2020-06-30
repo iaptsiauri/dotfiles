@@ -2,17 +2,12 @@
 
 # Install packages
 apps=(
-    1password
-    dropbox
     docker
-    iterm2
+    hyper
     visual-studio-code
-    opera
-    google-chrome
     spotify
-    slack
     shiftit
     the-unarchiver
 )
 
-brew cask install "${apps[@]}"
+brew cask list "${apps[@]}" || brew cask install "${apps[@]}"

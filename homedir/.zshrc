@@ -1,14 +1,22 @@
+
+ZSH_DISABLE_COMPFIX=true
+
+autoload -U promptinit; promptinit
+
+prompt pure
+
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
-# Path to your oh-my-zsh installation.
-export ZSH="/Users/ilia/.oh-my-zsh"
+# Path to my oh-my-zsh installation.
+DEFAULT_USER=`whoami`
+export ZSH="/Users/${DEFAULT_USER}/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
-# ZSH_THEME="af-magic-holiday"
+ ZSH_THEME=""
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -29,6 +37,9 @@ export ZSH="/Users/ilia/.oh-my-zsh"
 # Uncomment the following line to change how often to auto-update (in days).
 # export UPDATE_ZSH_DAYS=13
 
+# Imporove ls colors
+export CLICOLOR=1
+export LS_COLORS="di=1;36;1:ln=1;31:so=37:pi=1;33:ex=35:bd=37:cd=37:su=37:sg=37:tw=32:ow=32"
 # Uncomment the following line to disable colors in ls.
 # DISABLE_LS_COLORS="true"
 
@@ -66,6 +77,8 @@ plugins=(
   colored-man-pages
   git
   z
+  # zsh-syntax-highlighting
+  # zsh-autosuggestions
 )
 
 source $ZSH/oh-my-zsh.sh
@@ -78,11 +91,11 @@ source $ZSH/oh-my-zsh.sh
 # export LANG=en_US.UTF-8
 
 # Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
+ if [[ -n $SSH_CONNECTION ]]; then
+   export EDITOR='vim'
+ else
+   export EDITOR='nvim'
+ fi
 
 # Compilation flags
 # export ARCHFLAGS="-arch x86_64"
@@ -101,8 +114,6 @@ export NVM_DIR="$HOME/.nvm"
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-# Add RVM to PATH for scripting. Make sure this is the last PATH variable change.
-export PATH="$PATH:$HOME/.rvm/bin"
+ alias vim=nvim
+ alias zshrc="vim ~/.zshrc"
+ alias ohmyzsh="vim  ~/.oh-my-zsh"
