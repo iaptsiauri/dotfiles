@@ -1,4 +1,5 @@
 
+
 ZSH_DISABLE_COMPFIX=true
 
 # If you come from bash you might have to change your $PATH.
@@ -104,4 +105,7 @@ source $ZSH/oh-my-zsh.sh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
-# Example aliases
+# Example aliase
+source ~/.shellaliases 
+
+eval "$(starship init zsh)"
