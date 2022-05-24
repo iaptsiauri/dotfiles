@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # include my library helpers for colorized echo and require_brew, etc
+DEFAULT_USER=`whoami`
+
 source ./lib_sh/echos.sh
 
 bot "Hi! I'm going to install tooling and tweak your system settings. Here I go..."
@@ -42,7 +44,9 @@ running "checking homebrew install"
 brew_bin=$(which brew) 2>&1 > /dev/null
 if [[ $? != 0 ]]; then
   action "installing homebrew"
-    ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/${DEFAULT_USER}/.zprofile
+    eval "$(/opt/homebrew/bin/brew shellenv)"
     if [[ $? != 0 ]]; then
       error "unable to install homebrew, script $0 abort!"
       exit 2
@@ -89,35 +93,30 @@ done
 
 popd > /dev/null 2>&1
 
-#####
-# install Node
-#####
-
-bot "Installing NVM..."
-source ./nvm/install.sh
-
-bot "Installing a lts version of Node..."
-
-# Install the latest stable version of node
-nvm install --lts
-
-# Switch to the installed version
-nvm use node
-
-# Use the stable version of node by default
-nvm alias default node
-
-bot "installing packages with npm..."
-source ./install/npm.sh
-
 bot "installing packages with brew..."
 source ./install/brew.sh
 
 bot "installing packages with brew cask..."
 source ./install/brew_cask.sh
 
+#####
+# install Node
+#####
+
+bot "Installing a lts version of Node..."
+
+# Install the latest stable version of node
+n lts
+
+bot "installing packages with npm..."
+source ./install/npm.sh
+
+#####
+# Install Oh My Zsh
+#####
+
 bot "Installing Oh My Zsh to make us 10x developer..."
 source ./oh-my-zsh/tools/install.sh
 
-# bot "Copying custom Oh My Zsh themes..."
-# cp ./zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes
+bot "Copying custom Oh My Zsh themes..."
+cp ./oh-my-zsh/zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes

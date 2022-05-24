@@ -3,7 +3,10 @@
 #############################
 # Utilities
 
-alias dev='~/Development'
+ alias vim=nvim
+ alias zshrc="vim ~/.zshrc"
+ alias ohmyzsh="vim  ~/.oh-my-zsh"
+ alias cat=bat
 
 # Lock the screen (when going AFK)
 alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
@@ -22,8 +25,7 @@ alias ips="ifconfig -a | grep -o 'inet6\? \(addr:\)\?\s\?\(\(\([0-9]\+\.\)\{3\}[
 # Directory listings
 # -l Long format
 # -h Short size suffixes (B, K, M, G, P)
-# -p Postpend slash to folders
-alias ll='ls -l -h -p '
+alias ll='exa -l -h '
 
 # Print each PATH entry on a separate line
 alias path='echo -e ${PATH//:/\\n}'

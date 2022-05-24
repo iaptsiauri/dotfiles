@@ -21,7 +21,6 @@ packages=(
     eslint
     vtop
     nodemon
-    pure-prompt
 )
 
 npm install -g "${packages[@]}"

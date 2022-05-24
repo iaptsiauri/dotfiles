@@ -1,10 +1,6 @@
 
 ZSH_DISABLE_COMPFIX=true
 
-autoload -U promptinit; promptinit
-
-prompt pure
-
 # If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
@@ -16,7 +12,7 @@ export ZSH="/Users/${DEFAULT_USER}/.oh-my-zsh"
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/robbyrussell/oh-my-zsh/wiki/Themes
- ZSH_THEME=""
+ ZSH_THEME="robbyrussell"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -77,7 +73,7 @@ plugins=(
   colored-man-pages
   git
   z
-  # zsh-syntax-highlighting
+  F-Sy-H
   # zsh-autosuggestions
 )
 
@@ -103,17 +99,9 @@ source $ZSH/oh-my-zsh.sh
 # ssh
 # export SSH_KEY_PATH="~/.ssh/rsa_id"
 
-# nvm
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 # Set personal aliases, overriding those provided by oh-my-zsh libs,
 # plugins, and themes. Aliases can be placed here, though oh-my-zsh
 # users are encouraged to define aliases within the ZSH_CUSTOM folder.
 # For a full list of active aliases, run `alias`.
 #
 # Example aliases
- alias vim=nvim
- alias zshrc="vim ~/.zshrc"
- alias ohmyzsh="vim  ~/.oh-my-zsh"
