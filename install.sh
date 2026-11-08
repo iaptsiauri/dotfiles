@@ -1,66 +1,68 @@
 #!/usr/bin/env bash
 
-# include my library helpers for colorized echo and require_brew, etc
-DEFAULT_USER=`whoami`
+# Sets up a Mac: macOS settings, Homebrew tools and apps, Rust, Node, VS Code,
+# and symlinks from ~ to the config files in this repo.
+# Clone the repo anywhere and run ./install.sh from it.
 
+# Work from the repo's own directory, wherever it was cloned
+DOTFILES="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$DOTFILES" || exit 1
+
+# include my library helpers for colorized echo
 source ./lib_sh/echos.sh
 
 bot "Hi! I'm going to install tooling and tweak your system settings. Here I go..."
 
 # Ask for the administrator password upfront
-if ! sudo grep -q "%wheel		ALL=(ALL) NOPASSWD: ALL #atomantic/dotfiles" "/etc/sudoers"; then
+bot "I need you to enter your sudo password so I can install some things:"
+sudo -v
 
-  # Ask for the administrator password upfront
-  bot "I need you to enter your sudo password so I can install some things:"
-  sudo -v
-
-  # Keep-alive: update existing sudo time stamp until the script has finished
-  while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
-fi
+# Keep-alive: update existing sudo time stamp until the script has finished
+while true; do sudo -n true; sleep 60; kill -0 "$$" || exit; done 2>/dev/null &
 
 bot "Configuring MacOS system settings..."
 source ./system/macos.sh
 
-bot "Adding some nice fonts..."
-cp ./FiraCode/distr/ttf/*.ttf /Library/Fonts
-
+#####
 # /etc/hosts
-read -r -p "Overwrite /etc/hosts with the ad-blocking hosts file from someonewhocares.org? (from ./configs/hosts file) [y|N] " response
-if [[ $response =~ (yes|y|Y) ]];then
-    action "cp /etc/hosts /etc/hosts.backup"
-    sudo cp /etc/hosts /etc/hosts.backup
-    ok
-    action "cp ./hosts /etc/hosts"
-    sudo cp ./hosts /etc/hosts
-    ok
-    bot "Your /etc/hosts file has been updated. Last version is saved in /etc/hosts.backup"
+#####
+
+read -r -p "Replace /etc/hosts with the latest ad-blocking hosts file from someonewhocares.org? [y|N] " response
+if [[ $response =~ ^(yes|y|Y)$ ]]; then
+    hosts_tmp=$(mktemp)
+    action "downloading https://someonewhocares.org/hosts/hosts"
+    if curl -fsSL https://someonewhocares.org/hosts/hosts -o "$hosts_tmp"; then
+        sudo cp /etc/hosts /etc/hosts.backup
+        sudo cp "$hosts_tmp" /etc/hosts
+        ok
+        bot "Your /etc/hosts file has been updated. The previous version is saved in /etc/hosts.backup"
+    else
+        error "download failed, /etc/hosts left unchanged"
+    fi
+    rm -f "$hosts_tmp"
 fi
 
 #####
-# install homebrew (CLI Packages)
+# Homebrew
 #####
 
 running "checking homebrew install"
-brew_bin=$(which brew) 2>&1 > /dev/null
-if [[ $? != 0 ]]; then
+if ! command -v brew > /dev/null 2>&1; then
   action "installing homebrew"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> /Users/${DEFAULT_USER}/.zprofile
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-    if [[ $? != 0 ]]; then
-      error "unable to install homebrew, script $0 abort!"
-      exit 2
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # ~/.zprofile (linked below) runs `brew shellenv` for new shells; this is for the rest of this script
+  if ! eval "$(/opt/homebrew/bin/brew shellenv)"; then
+    error "unable to install homebrew, script $0 abort!"
+    exit 2
   fi
 else
   ok
-  # Make sure we’re using the latest Homebrew
   running "updating homebrew"
   brew update
   ok
   bot "before installing brew packages, we can upgrade any outdated packages."
   read -r -p "run brew upgrade? [y|N] " response
-  if [[ $response =~ ^(y|yes|Y) ]];then
-      # Upgrade any already-installed formulae
+  if [[ $response =~ ^(y|yes|Y)$ ]]; then
       action "upgrade brew packages..."
       brew upgrade
       ok "brews updated..."
@@ -69,54 +71,79 @@ else
   fi
 fi
 
-bot "creating symlinks for project dotfiles..."
-pushd homedir > /dev/null 2>&1
+#####
+# Symlinks
+#####
+
 now=$(date +"%Y.%m.%d.%H.%M.%S")
 
-for file in .*; do
-  if [[ $file == "." || $file == ".." ]]; then
-    continue
+# link <file in repo> <path in ~>: moves an existing real file aside, then symlinks
+link() {
+  local src=$1 dest=$2
+  running "$dest"
+  if [[ -e $dest && ! -L $dest ]]; then
+    mkdir -p ~/.dotfiles_backup/"$now"
+    mv "$dest" ~/.dotfiles_backup/"$now"/
+    echo "backup saved as ~/.dotfiles_backup/$now/$(basename "$dest")"
   fi
-  running "~/$file"
-  # if the file exists:
-  if [[ -e ~/$file ]]; then
-      mkdir -p ~/.dotfiles_backup/$now
-      mv ~/$file ~/.dotfiles_backup/$now/$file
-      echo "backup saved as ~/.dotfiles_backup/$now/$file"
-  fi
-  # symlink might still exist
-  unlink ~/$file > /dev/null 2>&1
-  # create the link
-  ln -s ~/dotfiles/homedir/$file ~/$file
+  mkdir -p "$(dirname "$dest")"
+  ln -sfn "$src" "$dest"
   echo -en '\tlinked';ok
-done
+}
 
-popd > /dev/null 2>&1
+bot "creating symlinks for project dotfiles..."
+for file in "$DOTFILES"/homedir/.*; do
+  name=$(basename "$file")
+  [[ $name == "." || $name == ".." ]] && continue
+  link "$file" ~/"$name"
+done
+link "$DOTFILES/starship/starship.toml" ~/.config/starship.toml
+
+#####
+# Tools and apps
+#####
 
 bot "installing packages with brew..."
 source ./install/brew.sh
 
-bot "installing packages with brew cask..."
+bot "installing apps with brew cask..."
 source ./install/brew_cask.sh
 
 #####
-# install Node
+# Rust
 #####
 
-bot "Installing a lts version of Node..."
+bot "Installing Rust with rustup..."
+if ! command -v rustup > /dev/null 2>&1; then
+  # --no-modify-path: ~/.zshenv and ~/.profile (linked above) already load ~/.cargo/env
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --no-modify-path
+fi
+source "$HOME/.cargo/env"
+rustup component add clippy rustfmt rust-analyzer rust-src
+ok
 
-# Install the latest stable version of node
-n lts
+#####
+# Node
+#####
 
-bot "installing packages with npm..."
+bot "Installing the latest LTS version of Node with fnm..."
+fnm install --lts
+eval "$(fnm env --shell bash)"
+
+bot "configuring npm..."
 source ./install/npm.sh
 
 #####
-# Install Oh My Zsh
+# VS Code
 #####
 
-bot "Installing Oh My Zsh to make us 10x developer..."
-source ./oh-my-zsh/tools/install.sh
+bot "Setting up VS Code..."
+link "$DOTFILES/vscode/settings.json" "$HOME/Library/Application Support/Code/User/settings.json"
+running "installing the extensions listed in vscode/extensions.txt"
+while read -r ext; do
+  [[ -n $ext ]] && code --install-extension "$ext" < /dev/null > /dev/null
+done < ./vscode/extensions.txt
+ok
 
-bot "Copying custom Oh My Zsh themes..."
-cp ./oh-my-zsh/zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes
+bot "All done! Open a new terminal window to load the new shell config."
+bot "Put machine-specific shell settings (work paths and the like) in ~/.zshrc.local."

@@ -1,0 +1,8 @@
+rupa/z
+
+zsh-users/zsh-autosuggestions
+
+# Syntax highlighting must load before history-substring-search
+# (see the history-substring-search README).
+z-shell/F-Sy-H
+zsh-users/zsh-history-substring-search

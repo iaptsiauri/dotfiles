@@ -1,10 +1,9 @@
 ###############################################################################
 bot "Configuring General System UI/UX..."
 ###############################################################################
-# Close any open System Preferences panes, to prevent them from overriding
-# settings we’re about to change
-running "closing any system preferences to prevent issues with automated changes"
-osascript -e 'tell application "System Preferences" to quit'
+# Close System Settings, to prevent it from overriding settings we’re about to change
+running "closing System Settings to prevent issues with automated changes"
+osascript -e 'tell application "System Settings" to quit'
 ok
 
 ##############################################################################
@@ -14,33 +13,27 @@ bot "Security"                                                               #
 # https://github.com/drduh/macOS-Security-and-Privacy-Guide
 # https://benchmarks.cisecurity.org/tools2/osx/CIS_Apple_OSX_10.12_Benchmark_v1.0.0.pdf
 
-# Enable firewall. Possible values:
-#   0 = off
-#   1 = on for specific sevices
-#   2 = on for essential services
-sudo defaults write /Library/Preferences/com.apple.alf globalstate -int 1;ok
+# Firewall. Since macOS 15 these settings go through socketfilterfw; writing
+# the old com.apple.alf plist no longer has any effect.
+FW=/usr/libexec/ApplicationFirewall/socketfilterfw
 
-# Enable firewall stealth mode (no response to ICMP / ping requests)
-# Source: https://support.apple.com/kb/PH18642
-#sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -int 1
-sudo defaults write /Library/Preferences/com.apple.alf stealthenabled -int 1;ok
+running "Enable the firewall"
+sudo $FW --setglobalstate on > /dev/null;ok
+
+# Stealth mode: no response to ICMP / ping requests
+running "Enable firewall stealth mode"
+sudo $FW --setstealthmode on > /dev/null;ok
 
 # Enable firewall logging
-#sudo defaults write /Library/Preferences/com.apple.alf loggingenabled -int 1
+#sudo $FW --setloggingmode on
 
 # Do not automatically allow signed software to receive incoming connections
-sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool false
+running "Don't automatically allow signed software through the firewall"
+sudo $FW --setallowsigned off > /dev/null;ok
 
 # Log firewall events for 90 days
 #sudo perl -p -i -e 's/rotate=seq compress file_max=5M all_max=50M/rotate=utc compress file_max=5M ttl=90/g' "/etc/asl.conf"
 #sudo perl -p -i -e 's/appfirewall.log file_max=5M all_max=50M/appfirewall.log rotate=utc compress file_max=5M ttl=90/g' "/etc/asl.conf"
-
-# Reload the firewall
-# (uncomment if above is not commented out)
-#launchctl unload /System/Library/LaunchAgents/com.apple.alf.useragent.plist
-#sudo launchctl unload /System/Library/LaunchDaemons/com.apple.alf.agent.plist
-#sudo launchctl load /System/Library/LaunchDaemons/com.apple.alf.agent.plist
-#launchctl load /System/Library/LaunchAgents/com.apple.alf.useragent.plist
 
 # Disable IR remote control
 #sudo defaults write /Library/Preferences/com.apple.driver.AppleIRController DeviceEnabled -bool false
@@ -53,6 +46,9 @@ sudo defaults write /Library/Preferences/com.apple.alf allowsignedenabled -bool 
 # Disable wifi captive portal
 #sudo defaults write /Library/Preferences/SystemConfiguration/com.apple.captive.control Active -bool false
 
+# systemsetup needs Full Disk Access for your terminal app on recent macOS.
+# Without it the next three commands print an error and change nothing.
+
 # Disable remote apple events
 running "Disable remote apple events"
 sudo systemsetup -setremoteappleevents off;ok
@@ -60,10 +56,6 @@ sudo systemsetup -setremoteappleevents off;ok
 # Disable remote login
 running "Disable remote login"
 sudo systemsetup -setremotelogin off;ok
-
-# Disable wake-on modem
-running "Disable wake-on modem"
-sudo systemsetup -setwakeonmodem off;ok
 
 # Disable wake-on LAN
 running "Disable wake-on LAN"
@@ -114,32 +106,9 @@ sudo defaults write /Library/Preferences/com.apple.mDNSResponder.plist NoMultica
 #sudo perl -p -i -e 's|filesz:2M|filesz:10M|g' /private/etc/security/audit_control
 #sudo perl -p -i -e 's|expire-after:10M|expire-after: 30d |g' /private/etc/security/audit_control
 
-###############################################################################
-bot "SSD-specific tweaks"                                                     #
-###############################################################################
-
-running "Disable local Time Machine snapshots"
-sudo tmutil disablelocal;ok
-
-# running "Disable hibernation (speeds up entering sleep mode)"
-# sudo pmset -a hibernatemode 0;ok
-
-running "Remove the sleep image file to save disk space"
-sudo rm -rf /Private/var/vm/sleepimage;ok
-running "Create a zero-byte file instead"
-sudo touch /Private/var/vm/sleepimage;ok
-running "…and make sure it can’t be rewritten"
-sudo chflags uchg /Private/var/vm/sleepimage;ok
-
-#running "Disable the sudden motion sensor as it’s not useful for SSDs"
-# sudo pmset -a sms 0;ok
-
 ################################################
 bot "Standard System Changes"
 ################################################
-running "always boot in verbose mode (not MacOS GUI mode)"
-sudo nvram boot-args="-v";ok
-
 running "Set sidebar icon size to medium"
 defaults write NSGlobalDomain NSTableViewDefaultSizeMode -int 2;ok
 
@@ -163,9 +132,6 @@ defaults write NSGlobalDomain NSDocumentSaveNewDocumentsToCloud -bool false;ok
 
 running "Automatically quit printer app once the print jobs complete"
 defaults write com.apple.print.PrintingPrefs "Quit When Finished" -bool true;ok
-
-running "Disable the “Are you sure you want to open this application?” dialog"
-defaults write com.apple.LaunchServices LSQuarantine -bool false;ok
 
 running "Remove duplicates in the “Open With” menu (also see 'lscleanup' alias)"
 /System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister -kill -r -domain local -domain system -domain user;ok
@@ -302,9 +268,6 @@ defaults write com.apple.finder FXPreferredViewStyle -string "Nlsv";ok
 running "Disable the warning before emptying the Trash"
 defaults write com.apple.finder WarnOnEmptyTrash -bool false;ok
 
-running "Empty Trash securely by default"
-defaults write com.apple.finder EmptyTrashSecurely -bool true;ok
-
 running "Show the ~/Library folder"
 chflags nohidden ~/Library;ok
 
@@ -316,7 +279,7 @@ defaults write com.apple.finder FXInfoPanesExpanded -dict \
   Privileges -bool true;ok
 
 ###############################################################################
-bot "Dock & Dashboard"
+bot "Dock"
 ###############################################################################
 
 running "Enable highlight hover effect for the grid view of a stack (Dock)"
@@ -340,12 +303,6 @@ defaults write com.apple.dock expose-animation-duration -float 0.1;ok
 running "Don’t group windows by application in Mission Control"
 # (i.e. use the old Exposé behavior instead)
 defaults write com.apple.dock expose-group-by-app -bool false;ok
-
-running "Disable Dashboard"
-defaults write com.apple.dashboard mcx-disabled -bool true;ok
-
-running "Don’t show Dashboard as a Space"
-defaults write com.apple.dock dashboard-in-overlay -bool true;ok
 
 running "Don’t automatically rearrange Spaces based on most recent use"
 defaults write com.apple.dock mru-spaces -bool false;ok
@@ -401,4 +358,6 @@ running "Sort Activity Monitor results by CPU usage"
 defaults write com.apple.ActivityMonitor SortColumn -string "CPUUsage"
 defaults write com.apple.ActivityMonitor SortDirection -int 0;ok
 
+# Restart the apps whose settings changed so they take effect now
 killall cfprefsd
+killall Finder Dock SystemUIServer > /dev/null 2>&1
