@@ -5,7 +5,8 @@
  alias cat=bat
 
 # Lock the screen (when going AFK)
-alias afk="/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend"
+# (sleeps the display; locks because a password is required immediately)
+alias afk="pmset displaysleepnow"
 alias lookbusy="cat /dev/urandom | hexdump -C | grep \"34 32\""
 
 # Empty the Trash on all mounted volumes and the main HDD.
