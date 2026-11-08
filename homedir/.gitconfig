@@ -1,6 +1,6 @@
 [user]
-  name = Ilia Aphtsiauri
-  email = ilia.aptsiauri@gmail.com
+	name = Ilia Aphtsiauri
+	email = ilia.aptsiauri@gmail.com
 [github]
   user = iaptsiauri
 [color]
@@ -31,6 +31,7 @@
 [core]
   excludesfile = ~/.gitignore
   editor = vim
+  pager = bat
 [apply]
   whitespace = nowarn
 [rerere]
@@ -47,3 +48,5 @@
   # Always show a diffstat at the end of a merge
   stat = true
   conflictstyle = diff3
+[pull]
+	rebase = true

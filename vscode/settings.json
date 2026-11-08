@@ -1,13 +1,133 @@
 {
-    "workbench.iconTheme": "material-icon-theme",
-    "editor.fontFamily": "'Fira Code', Menlo, Monaco, 'Courier New', monospace",
-    "editor.fontSize": 14,
-    "explorer.openEditors.visible": 0,
-    "editor.minimap.enabled": false,
-    "workbench.colorTheme": "Snazzy",
-    "files.trimTrailingWhitespace": true,
-    "explorer.confirmDelete": false,
-    "files.insertFinalNewline": true,
-    "terminal.integrated.fontSize": 14,
-    "editor.fontLigatures": true
+  // ---------- Theme: Catppuccin ----------
+  "workbench.colorTheme": "Catppuccin Macchiato",
+  "workbench.iconTheme": "catppuccin-macchiato",
+  // Recommended by Catppuccin: semantic colours (rust-analyzer uses these),
+  // untouched terminal colours, and a title bar that matches the theme.
+  "editor.semanticHighlighting.enabled": true,
+  "terminal.integrated.minimumContrastRatio": 1,
+  "window.titleBarStyle": "custom",
+
+  // ---------- Font: Fira Code ----------
+  // Ligatures join -> => :: != into single glyphs in the editor. They stay off
+  // in the terminal, where they can garble command output.
+  "editor.fontFamily": "'Fira Code', Menlo, monospace",
+  "editor.fontSize": 14,
+  "editor.lineHeight": 1.8,
+  "editor.fontWeight": "normal",
+  "editor.fontLigatures": true,
+  "terminal.integrated.fontFamily": "'Fira Code', Menlo, monospace",
+  "terminal.integrated.fontSize": 14,
+  "terminal.integrated.fontLigatures.enabled": false,
+
+  // ---------- Rust ----------
+  "[rust]": {
+    "editor.defaultFormatter": "rust-lang.rust-analyzer",
+    "editor.formatOnSave": true,
+    "editor.tabSize": 4
+  },
+  // Run clippy instead of plain `cargo check`, so the editor shows the same
+  // warnings as `cargo clippy --all-targets -- -D warnings`.
+  "rust-analyzer.check.command": "clippy",
+  "rust-analyzer.check.allTargets": true,
+  // Inline hints: inferred types, parameter names, and the lifetimes the
+  // compiler fills in for you.
+  "rust-analyzer.inlayHints.typeHints.enable": true,
+  "rust-analyzer.inlayHints.parameterHints.enable": true,
+  "rust-analyzer.inlayHints.chainingHints.enable": true,
+  "rust-analyzer.inlayHints.closureReturnTypeHints.enable": "with_block",
+  "rust-analyzer.inlayHints.lifetimeElisionHints.enable": "skip_trivial",
+  // "Run | Debug" buttons above tests and main(), plus tests in the Testing panel.
+  "rust-analyzer.lens.enable": true,
+  "rust-analyzer.testExplorer": true,
+  "rust-analyzer.debug.engine": "vadimcn.vscode-lldb",
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml",
+    "editor.formatOnSave": true
+  },
+
+  // ---------- Editor ----------
+  "editor.formatOnSave": true,
+  "editor.minimap.enabled": false,
+  "editor.scrollbar.vertical": "hidden",
+  "editor.scrollbar.horizontal": "hidden",
+  "editor.stickyScroll.enabled": false,
+  "editor.detectIndentation": false,
+  "editor.cursorSmoothCaretAnimation": "on",
+  "editor.cursorStyle": "underline",
+  "editor.cursorBlinking": "smooth",
+  "editor.hideCursorInOverviewRuler": true,
+  "editor.inlineSuggest.suppressSuggestions": true,
+  "workbench.editor.enablePreview": false,
+  "workbench.activityBar.location": "default",
+  "workbench.layoutControl.enabled": false,
+  "workbench.list.horizontalScrolling": false,
+  "window.commandCenter": false,
+  "window.newWindowDimensions": "inherit",
+  "window.title": "‎",
+
+  // ---------- Files ----------
+  // Save when you switch away. Unlike "afterDelay", this still runs
+  // format-on-save, and clippy doesn't re-run on every pause in typing.
+  "files.autoSave": "onFocusChange",
+  "files.autoSaveWhenNoErrors": true,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  // In Markdown two trailing spaces are a line break, so keep them.
+  "[markdown]": {
+    "files.trimTrailingWhitespace": false
+  },
+  "files.associations": {
+    ".env*": "dotenv"
+  },
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/node_modules": true
+  },
+  "explorer.decorations.badges": false,
+  "explorer.confirmDelete": false,
+  "explorer.openEditors.visible": 0,
+  "explorer.fileNesting.enabled": true,
+  "symbols.hidesExplorerArrows": true,
+
+  // ---------- Git ----------
+  "git.enableSmartCommit": true,
+  "git.autofetch": true,
+  "git.alwaysShowStagedChangesResourceGroup": true,
+  "scm.alwaysShowActions": true,
+  "scm.alwaysShowRepositories": true,
+  "scm.workingSets.enabled": true,
+
+  // ---------- Security ----------
+  "security.workspace.trust.untrustedFiles": "open",
+  "security.workspace.trust.banner": "never",
+
+  // ---------- Other languages and extensions (from your earlier setup) ----------
+  "[typescript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll": "explicit"
+    }
+  },
+  "python.analysis.autoFormatStrings": true,
+  "python.analysis.autoImportCompletions": true,
+  "ruff.fixAll": true,
+  "ruff.organizeImports": true,
+  "debugpy.showPythonInlineValues": true,
+  "redhat.telemetry.enabled": false,
+  "docker.extension.enableComposeLanguageServer": false,
+  "makefile.configureOnOpen": true,
+  "database-client.autoSync": true,
+  "github.copilot.chat.agent.autoFix": false,
+"chat.mcp.gallery.enabled": true,
+"chat.disableAIFeatures": true
 }

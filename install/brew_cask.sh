@@ -3,6 +3,7 @@
 # Install packages
 apps=(
     docker
+    font-fira-code
     visual-studio-code
     spotify
     shiftit

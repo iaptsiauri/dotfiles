@@ -10,14 +10,16 @@ brew upgrade
 
 apps=(
     ack
+    antidote
     bat
-    n
     coreutils
+    eza
+    fnm
     git
+    httpie
+    starship
     tree
     wifi-password
-    httpie
-    neovim
 )
 
 brew install "${apps[@]}"

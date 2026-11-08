@@ -3,3 +3,7 @@
 #############################################################
 
 source ~/.shellfn
+
+. "$HOME/.local/bin/env"
+. "$HOME/.cargo/env"
+. "/Users/ilia/.deno/env"

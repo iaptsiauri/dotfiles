@@ -21,9 +21,6 @@ fi
 bot "Configuring MacOS system settings..."
 source ./system/macos.sh
 
-bot "Adding some nice fonts..."
-cp ./FiraCode/distr/ttf/*.ttf /Library/Fonts
-
 # /etc/hosts
 read -r -p "Overwrite /etc/hosts with the ad-blocking hosts file from someonewhocares.org? (from ./configs/hosts file) [y|N] " response
 if [[ $response =~ (yes|y|Y) ]];then
@@ -105,18 +102,19 @@ source ./install/brew_cask.sh
 
 bot "Installing a lts version of Node..."
 
-# Install the latest stable version of node
-n lts
+# Install the latest LTS version of node with fnm and put it on PATH
+fnm install --lts
+eval "$(fnm env --shell bash)"
 
 bot "installing packages with npm..."
 source ./install/npm.sh
 
 #####
-# Install Oh My Zsh
+# Shell prompt and plugins
 #####
 
-bot "Installing Oh My Zsh to make us 10x developer..."
-source ./oh-my-zsh/tools/install.sh
-
-bot "Copying custom Oh My Zsh themes..."
-cp ./oh-my-zsh/zsh-theme/*.zsh-theme ~/.oh-my-zsh/custom/themes
+# Zsh plugins are managed by antidote (installed by brew.sh), which reads the
+# ~/.zsh_plugins.txt linked above. The prompt is starship.
+bot "Linking the starship prompt config..."
+mkdir -p ~/.config
+ln -sf ~/dotfiles/starship/starship.toml ~/.config/starship.toml
